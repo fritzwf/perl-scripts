@@ -1,0 +1,87 @@
+#!/usr/bin/perl
+  
+  ########################################################################
+  #  This script will recursively find all of the files under all the    #
+  # directories starting with the directory $base_dir.  It will then     #
+  # copy all of the files to the $dest_dir directory without recreating  #
+  # the original directories it traversed.                               #
+  ########################################################################  
+
+  $| = 1;  # output NOT buffered
+    	
+  use strict;
+  use warnings;
+  use utf8;
+  use File::Copy;
+  
+  my $base_dir;
+  my $dest_dir;
+  
+  my $foundDirs = 0;
+  my $foundFiles = 0;
+  
+  my @dirsWithFiles;
+  
+  # Accepts one argument: the direectory you want to copy files from.
+  sub process_files {
+    my $path = shift;
+    
+    # Open the directory.
+    opendir (DIR, $path)
+      or die "Unable to open $path: $!";    
+
+    # You will not generally want to process the '.' and '..' files, so we will use grep() to take them out.
+    my @files = grep { !/^\.{1,2}$/ } readdir (DIR);
+
+    closedir (DIR);
+
+    @files = map { $path . '/' . $_ } @files;
+
+    for (@files) {
+      # If the file is a directory
+      if (-d $_) {
+        # Recurse to see if more directories exist under this directory.
+        process_files ($_);
+        # Here we have found a fully qualified file, so add to the array.
+        push(@dirsWithFiles, $_);
+      }
+    }
+  }
+
+  # This will do the actual copying.
+  sub process_copy {
+    push(@dirsWithFiles, $base_dir);
+    $foundDirs = @dirsWithFiles;
+    
+    my @copyFiles;
+    
+    foreach (@dirsWithFiles) {
+      print "Adding directory for copying: $_\n";
+      push(@copyFiles, glob( $_ . '/*' ));        
+    }
+    
+    foreach(@copyFiles) {
+      # We only want the files
+      if (-f $_) {
+        if (! copy($_, $dest_dir)) {
+           print "Error: $!";
+        } else {
+          print "Copied file: $_\n";
+          $foundFiles++;
+        }
+      }
+    } 
+  } 
+    
+  $base_dir = $ARGV[0];
+  $dest_dir = $ARGV[1];
+  
+  if (length $base_dir && length $dest_dir) {
+    process_files($base_dir);
+    process_copy();
+    print "$foundDirs directories found\n";
+    print "$foundFiles files copied\n";
+  } else {
+    print "Script will copy all files in sourceDir directory recursively\nand copy all the files to the destDir directory\n";
+    print "\nUsage: $0 sourceDir destDir\n";
+  }
