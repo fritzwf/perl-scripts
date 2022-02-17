@@ -30,7 +30,7 @@
   use POSIX 'strftime';
 
   # My NASA token id.
-  my $token = "pPXEt1YcaXvcKKMK12wVbg78hT3dgcQYtZoPsvEZ";
+  my $token = "ENTER NASA APOD API KEY HERE";
  
   my $curr_display_date = strftime '%Y-%m-%d', localtime;
   
