@@ -1,11 +1,7 @@
 #!/usr/local/bin/perl
 
   #############################################################################
-  #                   Copyright (c) 2021 Fritz Feuerbacher.                   #
-  #                                                                           #
-  #############################################################################
-  # This CGI process enables my web pages to get data from HTTP sites when    #
-  # my website is hosted using HTTPS.                                         #
+  # This CGI process enables to get the Astronomy Picture of the Day.         #
   #############################################################################
 
   $| = 1;  # output NOT buffered
